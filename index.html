@@ -4,23 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Kontrol IoT - ESP32-CAM</title>
-
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <style>
         /* Hide number input arrows */
         input[type=number]::-webkit-inner-spin-button,
-        input[type=number]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
     </style>
 </head>
 
@@ -29,86 +19,78 @@
     <div class="max-w-4xl mx-auto">
         <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">🛰️ Panel Kontrol IoT</h1>
 
-        <!-- PANEL KONTROL -->
         <div class="grid md:grid-cols-2 gap-6 mb-6">
 
-            <!-- KONTROL MANUAL -->
             <div class="bg-white p-6 rounded-lg shadow-md">
                 <h2 class="text-xl font-semibold mb-4 border-b pb-2">Kontrol Manual</h2>
 
-                <!-- KONTROL ALARM -->
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Bunyikan Alarm</label>
-
                     <div class="flex gap-2">
                         <input type="number" id="alarmCount" placeholder="Jumlah (cth: 2)" class="w-full rounded-md border-gray-300 p-2">
                         <input type="number" id="alarmDuration" placeholder="Durasi (ms)" class="w-full rounded-md border-gray-300 p-2">
                         <input type="number" id="alarmDelay" placeholder="Delay (ms)" class="w-full rounded-md border-gray-300 p-2">
                     </div>
-
-                    <button onclick="sendAlarm()"
+                    <button onclick="sendAlarm(null, null, null, 'statusAlarm')"
                         class="mt-2 w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-md">
                         Kirim Perintah Alarm
                     </button>
-
-                    <div id="statusAlarm" class="text-xs text-green-600 mt-1"></div>
+                    <div id="statusAlarm" class="text-xs text-center mt-2"></div>
                 </div>
 
-                <!-- KONTROL LCD -->
                 <div class="mb-4">
                     <label for="lcdText" class="block text-sm font-medium text-gray-700">Tulis ke LCD</label>
                     <input type="text" id="lcdText" maxlength="32" placeholder="Tulis sesuatu..." 
                         class="mt-1 w-full rounded-md border-gray-300 p-2">
-
-                    <button onclick="sendLCDText()"
+                    <button onclick="sendLCDText(null, 'statusLCD')"
                         class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 font-bold rounded-md">
                         Kirim Teks LCD
                     </button>
-
-                    <div id="statusLCD" class="text-xs text-green-600 mt-1"></div>
+                    <div id="statusLCD" class="text-xs text-center mt-2"></div>
                 </div>
 
-                <!-- KONTROL JARAK -->
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700">Ganti Jarak Trigger (cm)</label>
                     <input type="number" id="triggerDistance" placeholder="cth: 50" class="mt-1 w-full rounded-md border-gray-300 p-2">
-
                     <button onclick="sendTriggerDistance()"
                         class="mt-2 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md font-bold">
                         Set Jarak Baru
                     </button>
-
-                    <div id="statusJarak" class="text-xs text-green-600 mt-1"></div>
+                    <div id="statusJarak" class="text-xs text-center mt-2"></div>
                 </div>
-
             </div>
 
-            <!-- KONTROL CEPAT -->
             <div class="bg-white p-6 rounded-lg shadow-md">
                 <h2 class="text-xl font-semibold mb-4 border-b pb-2">Kontrol Cepat</h2>
 
                 <div class="flex flex-col gap-4">
-                    <button onclick="requestFoto()"
-                        class="bg-purple-600 hover:bg-purple-700 text-white py-3 font-bold rounded-md text-lg">
-                        📸 Ambil Foto Sekarang
-                    </button>
+                    <div>
+                        <button onclick="requestFoto()"
+                            class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 font-bold rounded-md text-lg">
+                            📸 Ambil Foto Sekarang
+                        </button>
+                        <div id="statusFoto" class="text-xs text-center mt-2"></div>
+                    </div>
 
-                    <button onclick="sendAlarm(1, 1000, 0)"
-                        class="bg-red-500 hover:bg-red-600 text-white py-3 font-bold rounded-md text-lg">
-                        🔔 Bunyikan Alarm (1x 1dtk)
-                    </button>
+                    <div>
+                        <button onclick="sendAlarm(1, 1000, 0, 'statusAlarmQuick')"
+                            class="w-full bg-red-500 hover:bg-red-600 text-white py-3 font-bold rounded-md text-lg">
+                            🔔 Bunyikan Alarm (1x 1dtk)
+                        </button>
+                        <div id="statusAlarmQuick" class="text-xs text-center mt-2"></div>
+                    </div>
 
-                    <button onclick="sendLCDText('Halo dari Web!')"
-                        class="bg-blue-500 hover:bg-blue-600 text-white py-3 font-bold rounded-md text-lg">
-                        📟 Tes Tulis LCD
-                    </button>
+                    <div>
+                        <button onclick="sendLCDText('Halo dari Web!', 'statusLCDQuick')"
+                            class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 font-bold rounded-md text-lg">
+                            📟 Tes Tulis LCD
+                        </button>
+                        <div id="statusLCDQuick" class="text-xs text-center mt-2"></div>
+                    </div>
                 </div>
-
-                <div id="statusFoto" class="text-xs text-green-600 mt-2"></div>
             </div>
         </div>
 
-        <!-- LOG -->
         <div class="bg-white p-6 rounded-lg shadow-md">
             <h2 class="text-xl font-semibold mb-4 border-b pb-2">Log Deteksi (Realtime)</h2>
             <div id="log-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -117,15 +99,13 @@
         </div>
     </div>
 
-    <!-- POPUP IMAGE FULLSCREEN -->
-    <div id="imagePopup" class="hidden fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50">
+    <div id="imagePopup" class="hidden fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50" onclick="closePopup()">
         <div class="relative">
             <img id="popupImage" src="" class="rounded-lg shadow-lg max-h-[90vh] max-w-[90vw]">
             <button onclick="closePopup()" class="absolute top-2 right-2 bg-white rounded-full px-3 py-1 text-sm shadow">✖</button>
         </div>
     </div>
 
-    <!-- JAVASCRIPT -->
     <script>
         const SUPABASE_URL = "https://teennmkmzhhltjxujccz.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlZW5ubWttemhobHRqeHVqY2N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwNzk3ODUsImV4cCI6MjA3ODY1NTc4NX0.yXIbih2oMiw94Q-2gG-6Yh4ZGidHpPIpeuZDAwbH_DM";
@@ -133,40 +113,62 @@
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const logContainer = document.getElementById('log-container');
 
-        /* === GENERIC COMMAND — AUTO HIDE MESSAGE 3s === */
+        // (BARU) Peta untuk melacak ID perintah yang sedang ditunggu eksekusinya
+        // Format: Map<command_id, status_element_id>
+        const pendingCommands = new Map();
+
+        /* === FUNGSI KIRIM PERINTAH (DIMODIFIKASI) === */
         async function sendCommand(tipe, payload, statusElementId) {
             const el = document.getElementById(statusElementId);
+            if (!el) return;
 
             try {
-                const { error } = await client
+                // Status 1: Mengirim...
+                el.textContent = "Mengirim...";
+                el.className = "text-xs text-center mt-2 text-blue-600";
+
+                // (MODIFIKASI) Ambil 'id' dari perintah yang baru dikirim
+                const { data, error } = await client
                     .from('perintah_device')
-                    .insert({ tipe_perintah: tipe, payload });
+                    .insert({ tipe_perintah: tipe, payload })
+                    .select('id') // Minta Supabase mengembalikan 'id'
+                    .single(); // Karena kita hanya insert 1 baris
 
                 if (error) throw error;
 
-                el.textContent = "Perintah terkirim";
+                const newCommandId = data.id;
 
-                setTimeout(() => (el.textContent = ""), 3000);
+                // Status 2: Terkirim (Menunggu eksekusi)
+                el.textContent = `✅ Terkirim (Menunggu ESP32...)`;
+                el.className = "text-xs text-center mt-2 text-green-600";
+
+                // (BARU) Daftarkan ID ini untuk dipantau
+                pendingCommands.set(newCommandId, statusElementId);
 
             } catch (err) {
-                el.textContent = "Gagal: " + err.message;
-                setTimeout(() => (el.textContent = ""), 3000);
+                // Status Gagal: Error
+                el.textContent = "❌ Gagal: " + err.message;
+                el.className = "text-xs text-center mt-2 text-red-600";
+                setTimeout(() => (el.textContent = ""), 5000); // Hapus pesan error
             }
         }
 
-        function sendAlarm(count, duration, delay) {
+        /* === FUNGSI TOMBOL (DIMODIFIKASI) === */
+        // Sekarang mengirim ID elemen status yang benar
+        
+        function sendAlarm(count, duration, delay, statusId) {
             const c = count || document.getElementById('alarmCount').valueAsNumber;
             const d = duration || document.getElementById('alarmDuration').valueAsNumber;
             const del = delay !== undefined ? delay : document.getElementById('alarmDelay').valueAsNumber;
 
             if (!c || !d) return alert("Harap isi jumlah & durasi alarm.");
-            sendCommand('alarm', { count: c, duration: d, delay: del || 0 }, "statusAlarm");
+            sendCommand('alarm', { count: c, duration: d, delay: del || 0 }, statusId);
         }
 
-        function sendLCDText(text) {
+        function sendLCDText(text, statusId) {
             const t = text || document.getElementById('lcdText').value;
             if (!t) return alert("Harap isi teks LCD.");
-            sendCommand('lcd', { teks: t }, "statusLCD");
+            sendCommand('lcd', { teks: t }, statusId);
         }
 
         function sendTriggerDistance() {
@@ -178,7 +180,8 @@
         function requestFoto() {
             sendCommand('foto', {}, "statusFoto");
         }
-
+        
+        /* === FUNGSI MODAL POPUP (Sama) === */
         function openPopup(url) {
             document.getElementById("popupImage").src = url;
             document.getElementById("imagePopup").classList.remove("hidden");
@@ -187,6 +190,7 @@
             document.getElementById("imagePopup").classList.add("hidden");
         }
 
+        /* === FUNGSI RENDER LOG (Sama) === */
         function renderLog(log) {
             const div = document.createElement("div");
             div.className = "bg-gray-50 border border-gray-200 rounded-lg shadow-sm overflow-hidden";
@@ -209,13 +213,13 @@
 
             textDiv.appendChild(textP);
             textDiv.appendChild(dateP);
-
             div.appendChild(img);
             div.appendChild(textDiv);
 
             logContainer.prepend(div);
         }
 
+        /* === FUNGSI AMBIL LOG AWAL (Sama) === */
         async function fetchLogs() {
             const { data } = await client
                 .from('log_deteksi')
@@ -227,6 +231,7 @@
             data?.forEach(renderLog);
         }
 
+        /* === FUNGSI SUBSCRIBE LOG BARU (DIMODIFIKASI) === */
         function subscribeToLogs() {
             client.channel("log_deteksi_channel")
                 .on("postgres_changes",
@@ -235,20 +240,57 @@
                         const log = payload.new;
                         renderLog(log);
 
-                        if (log.dari_request === true) {
-                            const el = document.getElementById("statusFoto");
-                            el.textContent = "Sudah tereksekusi";
-                            setTimeout(() => (el.textContent = ""), 3000);
-                        } else {
+                        // (MODIFIKASI) Perbaiki bug 'dari_request'
+                        // Cek pesan dari ESP32 untuk menentukan apakah perlu alert
+                        if (log.pesan && log.pesan.includes("Objek terdeteksi")) {
+                            // Ini adalah deteksi otomatis, tampilkan alert
                             alert("DETEKSI BARU! Ada foto baru masuk.");
                         }
+                        // Jika 'log.pesan' adalah "Foto diambil via web",
+                        // maka TIDAK akan ada alert (sesuai permintaanmu)
                     })
                 .subscribe();
         }
 
+        /* === (BARU) FUNGSI SUBSCRIBE UPDATE PERINTAH === */
+        // Ini adalah fungsi baru untuk mendengarkan "bukti eksekusi"
+        function subscribeToCommandUpdates() {
+            client.channel("perintah_update_channel")
+                .on("postgres_changes",
+                    { event: "UPDATE", schema: "public", table: "perintah_device" },
+                    (payload) => {
+                        const updatedCommand = payload.new;
+                        
+                        // Cek apakah 'sudah_dieksekusi' jadi true
+                        // DAN apakah ID-nya ada di peta pantauan kita
+                        if (updatedCommand.sudah_dieksekusi && pendingCommands.has(updatedCommand.id)) {
+                            
+                            // Ambil ID elemen status yang sesuai
+                            const statusElementId = pendingCommands.get(updatedCommand.id);
+                            const el = document.getElementById(statusElementId);
+
+                            if (el) {
+                                // Status 3: Tereksekusi
+                                el.textContent = "✅✅ Tereksekusi oleh ESP32!";
+                                el.className = "text-xs text-center mt-2 text-teal-700 font-bold";
+                                
+                                // Hapus pesan setelah 5 detik
+                                setTimeout(() => (el.textContent = ""), 5000);
+                            }
+                            
+                            // Hapus dari daftar pantauan
+                            pendingCommands.delete(updatedCommand.id);
+                        }
+                    }
+                )
+                .subscribe();
+        }
+
+        // --- JALANKAN SEMUA SAAT MULAI ---
         fetchLogs();
         subscribeToLogs();
-    </script>
+        subscribeToCommandUpdates(); // Jalankan listener baru
 
+    </script>
 </body>
 </html>
