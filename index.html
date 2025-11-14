@@ -46,7 +46,10 @@
                         <input type="number" id="alarmDelay" placeholder="Delay (ms)" class="w-full rounded-md border-gray-300 p-2">
                     </div>
 
-                    <button onclick="sendAlarm()" class="mt-2 w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-md">Kirim Perintah Alarm</button>
+                    <button onclick="sendAlarm()"
+                        class="mt-2 w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-md">
+                        Kirim Perintah Alarm
+                    </button>
 
                     <div id="statusAlarm" class="text-xs text-green-600 mt-1"></div>
                 </div>
@@ -54,7 +57,8 @@
                 <!-- KONTROL LCD -->
                 <div class="mb-4">
                     <label for="lcdText" class="block text-sm font-medium text-gray-700">Tulis ke LCD</label>
-                    <input type="text" id="lcdText" maxlength="32" placeholder="Tulis sesuatu..." class="mt-1 w-full rounded-md border-gray-300 p-2">
+                    <input type="text" id="lcdText" maxlength="32" placeholder="Tulis sesuatu..." 
+                        class="mt-1 w-full rounded-md border-gray-300 p-2">
 
                     <button onclick="sendLCDText()"
                         class="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 font-bold rounded-md">
@@ -69,7 +73,8 @@
                     <label class="block text-sm font-medium text-gray-700">Ganti Jarak Trigger (cm)</label>
                     <input type="number" id="triggerDistance" placeholder="cth: 50" class="mt-1 w-full rounded-md border-gray-300 p-2">
 
-                    <button onclick="sendTriggerDistance()" class="mt-2 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md font-bold">
+                    <button onclick="sendTriggerDistance()"
+                        class="mt-2 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md font-bold">
                         Set Jarak Baru
                     </button>
 
@@ -122,33 +127,33 @@
 
     <!-- JAVASCRIPT -->
     <script>
-        // KONFIGURASI SUPABASE
         const SUPABASE_URL = "https://teennmkmzhhltjxujccz.supabase.co";
         const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlZW5ubWttemhobHRqeHVqY2N6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwNzk3ODUsImV4cCI6MjA3ODY1NTc4NX0.yXIbih2oMiw94Q-2gG-6Yh4ZGidHpPIpeuZDAwbH_DM";
 
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
         const logContainer = document.getElementById('log-container');
 
-        // GENERIC SEND COMMAND
+        /* === GENERIC COMMAND — AUTO HIDE MESSAGE 3s === */
         async function sendCommand(tipe, payload, statusElementId) {
+            const el = document.getElementById(statusElementId);
+
             try {
                 const { error } = await client
                     .from('perintah_device')
-                    .insert({
-                        tipe_perintah: tipe,
-                        payload: payload
-                    });
+                    .insert({ tipe_perintah: tipe, payload });
 
                 if (error) throw error;
 
-                document.getElementById(statusElementId).textContent = "Perintah terkirim";
+                el.textContent = "Perintah terkirim";
+
+                setTimeout(() => (el.textContent = ""), 3000);
+
             } catch (err) {
-                document.getElementById(statusElementId).textContent = "Gagal: " + err.message;
+                el.textContent = "Gagal: " + err.message;
+                setTimeout(() => (el.textContent = ""), 3000);
             }
         }
 
-        // ALARM
         function sendAlarm(count, duration, delay) {
             const c = count || document.getElementById('alarmCount').valueAsNumber;
             const d = duration || document.getElementById('alarmDuration').valueAsNumber;
@@ -158,26 +163,22 @@
             sendCommand('alarm', { count: c, duration: d, delay: del || 0 }, "statusAlarm");
         }
 
-        // LCD
         function sendLCDText(text) {
             const t = text || document.getElementById('lcdText').value;
             if (!t) return alert("Harap isi teks LCD.");
             sendCommand('lcd', { teks: t }, "statusLCD");
         }
 
-        // JARAK
         function sendTriggerDistance() {
             const jarak = document.getElementById('triggerDistance').valueAsNumber;
             if (!jarak || jarak <= 0) return alert("Masukkan jarak valid.");
-            sendCommand('jarak', { jarak: jarak }, "statusJarak");
+            sendCommand('jarak', { jarak }, "statusJarak");
         }
 
-        // FOTO
         function requestFoto() {
             sendCommand('foto', {}, "statusFoto");
         }
 
-        // POPUP IMAGE
         function openPopup(url) {
             document.getElementById("popupImage").src = url;
             document.getElementById("imagePopup").classList.remove("hidden");
@@ -186,7 +187,6 @@
             document.getElementById("imagePopup").classList.add("hidden");
         }
 
-        // RENDER LOG
         function renderLog(log) {
             const div = document.createElement("div");
             div.className = "bg-gray-50 border border-gray-200 rounded-lg shadow-sm overflow-hidden";
@@ -216,31 +216,29 @@
             logContainer.prepend(div);
         }
 
-        // FETCH LOG AWAL
         async function fetchLogs() {
-            const { data, error } = await client
+            const { data } = await client
                 .from('log_deteksi')
                 .select('*')
                 .order('created_at', { ascending: false })
                 .limit(20);
 
             document.getElementById("loadingLogs").style.display = "none";
-
-            if (!error) data.forEach(renderLog);
+            data?.forEach(renderLog);
         }
 
-        // REALTIME LISTEN
         function subscribeToLogs() {
             client.channel("log_deteksi_channel")
                 .on("postgres_changes",
                     { event: "INSERT", schema: "public", table: "log_deteksi" },
                     (payload) => {
                         const log = payload.new;
-
                         renderLog(log);
 
                         if (log.dari_request === true) {
-                            document.getElementById("statusFoto").textContent = "Sudah tereksekusi";
+                            const el = document.getElementById("statusFoto");
+                            el.textContent = "Sudah tereksekusi";
+                            setTimeout(() => (el.textContent = ""), 3000);
                         } else {
                             alert("DETEKSI BARU! Ada foto baru masuk.");
                         }
@@ -248,9 +246,9 @@
                 .subscribe();
         }
 
-        // RUN
         fetchLogs();
         subscribeToLogs();
     </script>
+
 </body>
 </html>
