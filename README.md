@@ -15,7 +15,7 @@ Seluruh file berada pada root repository dan dapat dibuka melalui tautan berikut
 [`vercel.json`](./vercel.json)
 - File konfigurasi untuk **Vercel**.
 
-Demo project dapat diakses melalui [SAS WEB](https://sas-web.vercel.app/)
+Website dapat diakses melalui [SAS WEB](https://sas-web.vercel.app/)
 
 ---
 
