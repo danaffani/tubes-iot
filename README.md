@@ -7,13 +7,15 @@ Proyek ini merupakan sistem monitoring menggunakan **ESP32-CAM** yang mengirimka
 Seluruh file berada pada root repository dan dapat dibuka melalui tautan berikut:
 
 [`Tubes_IoT.ino`](./Tubes_IoT.ino)
-Berisi program yang dijalankan di **ESP32-CAM**, Program ini menangani seluruh proses pada alat yang terhubung biar bekerja hingga komunikasi data ke backend.
+- Berisi program yang dijalankan di **ESP32-CAM**, Program ini menangani seluruh proses pada alat yang terhubung biar bekerja hingga komunikasi data ke backend.
 
 [`index.html`](./index.html)
-Merupakan **halaman website** yang menampilkan hasil dari ESP32-CAM. File ini menjadi antarmuka utama yang diakses pengguna.
+- Merupakan **halaman website** yang menampilkan hasil dari ESP32-CAM. File ini menjadi antarmuka utama yang diakses pengguna.
 
 [`vercel.json`](./vercel.json)
-File konfigurasi untuk **Vercel**
+- File konfigurasi untuk **Vercel**.
+
+Demo project dapat diakses melalui [SAS WEB](https://sas-web.vercel.app/)
 
 ---
 
